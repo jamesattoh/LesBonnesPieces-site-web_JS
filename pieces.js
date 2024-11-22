@@ -1,37 +1,4 @@
-/**
- * // Récupération des pièces depuis le fichier JSON
-const reponse = await fetch("pieces-autos.json");
-const pieces = await reponse.json();
-
-//creation des nouveaux elements
-const article = pieces[0]
-const imageElement = document.createElement("img")
-imageElement.src = article.image
-const nomElement = document.createElement("h2")
-nomElement.innerText = article.nom
-const prixElement = document.createElement("p")
-prixElement.innerText = `Prix : ${article.prix} € (${article.prix < 35 ? "€" : "€€€"})` //j'utilise l'expression ternaire pour catégoriser le prix de l'article cher, moins cher 
-const categorieElement = document.createElement("p")
-categorieElement.innerText = article.categorie ?? ("aucune catégorie") //operateur nullish ?? : expression à tester ?? valeur de substitution
-
-const descriptionElement = document.createElement("p")
-descriptionElement.innerText = article.description ?? ("Pas de description pour le moment") 
-const disponibiliteElement = document.createElement("p")
-disponibiliteElement.innerText = `${article.disponibilite ? "En stock" : "Rupture de stock"}`
-
-
-
-//rattechement de ces elements a un parent pour les faire apparaitre
-const sectionFiches = document.querySelector(".fiches")
-sectionFiches.appendChild(imageElement)
-sectionFiches.appendChild(nomElement)
-sectionFiches.appendChild(prixElement)
-sectionFiches.appendChild(categorieElement)
-
-sectionFiches.appendChild(descriptionElement)
-sectionFiches.appendChild(disponibiliteElement)
-
-**/
+// Récupération des pièces depuis le fichier JSON
 
 const reponse = await fetch("pieces-autos.json");
 const pieces = await reponse.json();
@@ -43,7 +10,7 @@ for (let i = 0; i < pieces.length; i++){
     const article = pieces[i]
     //creation des elements
 
-    //je cree d'abord une balise dediee a une piece 
+    //je cree d'abord une balise article  dediee a une piece 
     const pieceElement = document.createElement("article")
 
     //je cree l'img
@@ -82,3 +49,39 @@ for (let i = 0; i < pieces.length; i++){
     pieceElement.appendChild(descriptionElement)
     pieceElement.appendChild(disponibiliteElement)
 }
+
+//je recupere le bouton trier
+const boutonTrier = document.querySelector(".btn-trier")
+//j'ecoute l'evenement
+boutonTrier.addEventListener("click", () => {
+    //je cree d'abord une copie du tableau
+    const piecesOrdonnees = Array.from(pieces)
+
+    /**je trie : a par exemple = 60, b = 40; b-a sera egale à -10 < 0; 
+     * alors a doit passer devant b (ou a sera ranger avant b) puisque c'est au plus grand d'être devant
+     * si on veut l'ordre croissant 
+     * 
+     * fonctionnement de sort
+     * on fait la difference B - A
+     * on veut l'ordre croissant
+     * si le nombre est positif, alors B sera rangé avant A ; 
+     * si le nombre est négatif, alors A sera rangé avant B ;
+     * si le nombre est zéro (0), alors l’ordre sera inchangé.
+     **/
+    piecesOrdonnees.sort(function(a,b){
+        return a.prix - b.prix
+    })
+
+    console.log(piecesOrdonnees)
+})
+
+//je filtre les pieces a afficher selon une condition
+const boutonFiltrer = document.querySelector(".btn-filtrer")
+
+boutonFiltrer.addEventListener("click", function () {
+   const piecesFiltrees = pieces.filter(function (piece) {
+       //la fonction anonyme doit retourner un booleen
+       return piece.prix <= 35
+   })
+   console.log(piecesFiltrees)
+ }) 
