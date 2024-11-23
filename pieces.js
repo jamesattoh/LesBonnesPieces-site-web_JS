@@ -50,6 +50,10 @@ for (let i = 0; i < pieces.length; i++){
     pieceElement.appendChild(disponibiliteElement)
 }
 
+/**
+ * je procede a la gestion des boutons
+ */
+
 //je recupere le bouton trier
 const boutonTrier = document.querySelector(".btn-trier")
 //j'ecoute l'evenement
@@ -85,3 +89,30 @@ boutonFiltrer.addEventListener("click", function () {
    })
    console.log(piecesFiltrees)
  }) 
+
+
+//je recupere le bouton pour filtrer par description et je l'eecoute
+const boutonDescription = document.querySelector(".btn-description")
+
+boutonDescription.addEventListener("click", () => {
+    const piecesAdescription = pieces.filter(function (piece){
+        //la fonction anonyme doit retourner un booleen
+        return piece.description
+    })
+
+    console.log(piecesAdescription)
+})
+
+//je recupere le bouton pour trier par prix decroissant
+const boutonPrixDec = document.querySelector(".btn-decroissant")
+
+//j'ecoute le bouton
+boutonPrixDec.addEventListener("click", () => {
+    //je cree une copie du tableau 
+    const piecesOrdonneesDec = Array.from(pieces)
+    //je trie le tableau
+    piecesOrdonneesDec.sort(function(a,b){
+        return b.prix - a.prix
+    })
+    console.log(piecesOrdonneesDec)
+})
