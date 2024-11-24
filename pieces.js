@@ -84,7 +84,8 @@ const boutonFiltrer = document.querySelector(".btn-filtrer")
 
 boutonFiltrer.addEventListener("click", function () {
    const piecesFiltrees = pieces.filter(function (piece) {
-       //la fonction anonyme doit retourner un booleen
+       /**filter peut fonctionner avec une fonction anonyme et 
+        cette fonction anonyme doit retourner un booleen**/ 
        return piece.prix <= 35
    })
    console.log(piecesFiltrees)
@@ -116,3 +117,56 @@ boutonPrixDec.addEventListener("click", () => {
     })
     console.log(piecesOrdonneesDec)
 })
+
+//je recupere les noms des pieces avec map et la syntaxe "lambda" des fonctions
+const noms = pieces.map(piece => piece.nom); //piece => piece.nom signifie retourner la valeur de la propriété nom de l'objet piece
+/**je supprimz ceux qui ne sont pas abordables
+ * lorsqu'on veut supprimer des elements d'une liste 
+ * il est conseille de commencer par le dernier element
+ **/
+for(let i = pieces.length -1 ; i >= 0; i--){
+   if(pieces[i].prix > 35){
+       noms.splice(i,1)//splice permet de supprimer des elements indesirables : (l'indice à partir duquel supprimer, nbre à supprimer)
+   }
+}
+
+//je cree une liste pour accueillir le reste des elements
+const elementsAbordables = document.createElement("ul")
+
+//ajouter chaque nom a la liste
+for (let i = 0; i < noms.length; i++) { //puisque c'est dans noms que j'ai supprime des elements, sa length aurait changé
+    const nomElement = document.createElement("li")
+    nomElement.innerText = noms[i]
+    elementsAbordables.appendChild(nomElement)
+}
+
+//ajouter la liste a la page html
+document.querySelector(".abordables")
+.appendChild(elementsAbordables)
+
+//je recupere les listes pour les noms et les prix disponibles
+const nomsDisponibles = pieces.map(piece => piece.nom)
+const prixDisponibles = pieces.map(piece => piece.prix)
+
+//je suppirme le nom et les prix des pieces non disponibles avec splice appliquee aux listes creees ou recuperees
+for(let i = pieces.length - 1; i >= 0; i--){
+    if(!pieces[i].disponibilite){
+        nomsDisponibles.splice(i,1)
+        prixDisponibles.splice(i,1)
+    }
+}
+
+//creer une liste pour accueillir les elements
+const elementsDiqponibles = document.createElement("ul")
+
+//ajouter chaque nom a la liste
+for(let i = 0; i<nomsDisponibles.length; i++){
+    const nomElement  = document.createElement('li')
+    //je formate l'affichage cette fois avec les backticks
+    nomElement.innerText = `${nomsDisponibles[i]} : ${prixDisponibles[i]} €`
+    elementsDiqponibles.appendChild(nomElement)
+}
+
+//ajouter la liste a la page html
+document.querySelector(".disponibles").appendChild(elementsDiqponibles)
+
