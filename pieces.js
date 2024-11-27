@@ -1,3 +1,6 @@
+//rendre disponible, dans ce fichier la fonction permettant de lancer la requete
+import { ajoutListenersAvis } from "./avis.js";
+
 // Récupération des pièces depuis le fichier JSON
 
 const reponse = await fetch("pieces-autos.json");
@@ -40,6 +43,11 @@ function genererPieces(pieces){
         const disponibiliteElement = document.createElement("p")
         disponibiliteElement.innerText = `${article.disponibilite ? "En stock" : "Rupture de stock"}`
     
+        //creation du bouton afficher les avis
+        const avisBouton = document.createElement("button")
+        avisBouton.dataset.id = article.id
+        avisBouton.textContent = "Afficher les avis."
+
         //rattachement de la balise article a la section fiche
         sectionFiches.appendChild(pieceElement)
     
@@ -50,7 +58,11 @@ function genererPieces(pieces){
         pieceElement.appendChild(categorieElement)
         pieceElement.appendChild(descriptionElement)
         pieceElement.appendChild(disponibiliteElement)
+        pieceElement.appendChild(avisBouton)
     }
+
+    // Ajout de la fonction ajoutListenersAvis a la suite de la generation de toutes les fiches produits ou articles
+    ajoutListenersAvis();
 }
 
 //affichage par defaut
