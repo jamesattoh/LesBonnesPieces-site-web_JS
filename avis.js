@@ -30,11 +30,43 @@ export function ajoutListenersAvis() {
         const avisElement = document.createElement("p")
 
         for(let i = 0; i < avis.length; i++){
-            avisElement.innerHTML += `<br>${avis[i].utilisateur} :<br> ${avis[i].commentaire} <br>`
+            avisElement.innerHTML += `<br>${avis[i].utilisateur} :<br> ${avis[i].commentaire} <br> Nombre d'étoiles : ${avis[i].nbEtoiles ??("Aucune") }<br>`
         }
 
         //je rajoute le p au parent pré-recupere
         pieceElement.appendChild(avisElement)
       });
     }
+}
+
+
+//la soumission d'un formulaire est validee lorsque l'on appuie sur enter dans un champ, ou sur le bouton d'envoi
+export function ajoutListenerEnvoyerAvis(){
+    const formulaireAvis = document.querySelector(".formulaire-avis")
+    formulaireAvis.addEventListener("submit", function(event){
+    // Désactivation du comportement par défaut du navigateur pour la gestion du formulaire
+    event.preventDefault();
+
+    /** Création de l’objet du nouvel avis ou construction de la charge utile
+     * pour recuperer les elements a envoyer, j'utilise querySelector pour cibler les donnees du champ du formulaire
+     * j'utilise event.target comme point de dpart pour querySelector au lieu de de document
+     * enfin avec value je recupere la valeur saisie par l'utilisateur sur la page web
+     **/
+    const avis = {
+        pieceId: parseInt(event.target.querySelector("[name=piece-id]").value),
+        utilisateur: event.target.querySelector("[name=utilisateur").value,
+        commentaire: event.target.querySelector("[name=commentaire]").value,
+        nbEtoiles: parseInt(event.target.querySelector("[name=nb-etoiles]").value),
+    };
+    
+    // Création de la charge utile au format JSON: la conversion de la charge utile est faite grace à stringify
+    const chargeUtile = JSON.stringify(avis);
+
+    // il ne reste plus qu'à appeler la fonction fetch avec toutes les informations nécessaires
+    fetch("http://localhost:8081/avis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: chargeUtile
+    });
+    })
 }
