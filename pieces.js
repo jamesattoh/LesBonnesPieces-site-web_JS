@@ -1,5 +1,5 @@
 //rendre disponible, dans ce fichier la fonction permettant de lancer la requete
-import { ajoutListenersAvis, ajoutListenerEnvoyerAvis, afficherAvis } from "./avis.js";
+import { ajoutListenersAvis, ajoutListenerEnvoyerAvis, afficherAvis, afficherGraphiqueAvis } from "./avis.js";
 
 //Recuperation eventuelle des pieces depuis le localStorage
 let pieces = window.localStorage.getItem("pieces")
@@ -250,3 +250,5 @@ boutonMettreAJour.addEventListener("click", function() {
     window.localStorage.removeItem("pieces")
     console.log("toto")
 })
+
+await afficherGraphiqueAvis()
