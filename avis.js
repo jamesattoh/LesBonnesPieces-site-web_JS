@@ -10,13 +10,14 @@ export function ajoutListenersAvis() {
     //parcourir chaque button et lui ajouter un addEventListener (click)
     for (let i = 0; i < piecesElements.length; i++) {
         piecesElements[i].addEventListener("click", async function (event) {
-        /* recuperation de la valeur de l'attibut data-id grace a la propriete dataset */
-        const id = event.target.dataset.id;
-        /** cette valeur recuperee du id m'aide a lancer une requete vers l'api
-         de base, fetch est une operation asynchrone, avec le 'await', cela indique d'attendre 
+        /** recuperation de la valeur de l'attibut data-id grace a la propriete dataset 
+         *  cette valeur recuperee du id m'aide a lancer une requete vers l'api
+        de base, fetch est une operation asynchrone, avec le 'await', cela indique d'attendre 
         la fin de cette operation(i.e. recevoir la reponse de l'api) avant de poursuivre sur le rste du code
         aussi faut-il placer 'async' devant la fonction dans laquelle 'await' est utilise
-        **/
+        *   event.target cible ou precisse l'element qui a declenche l'evenenment
+         */
+        const id = event.target.dataset.id;
         const reponse = await fetch(`http://localhost:8081/pieces/${id}/avis`)//ou await fetch(`http://localhost:8081/pieces/`+ id `/avis`);
         //console.log("Le script continue sans attendre la réponse");
 
@@ -25,20 +26,36 @@ export function ajoutListenersAvis() {
         * mettre un await car cette operation est aussi asynchrone
         **/
         const avis = await reponse.json()
-        //je recupere l'element parent de l'element cible surlequel je suis preentement
+
+        /** objectif: stocker les avis utilisateurs dans le localStorage
+         * cette ligne appelle la fonction setItem, la clé est calculée avec le id de l'avis, et la valeur est la conversion de l'avis en JSON
+         * on sauvegarde l'avis donc dans le localStorage
+        */
+        window.localStorage.setItem(`avis-piece-${id}`, JSON.stringify(avis))
+        
+        //je recupere l'element parent de l'element cible surlequel je suis preentement : grace a la propriete parentElement
         const pieceElement = event.target.parentElement
-        const avisElement = document.createElement("p")
 
-        for(let i = 0; i < avis.length; i++){
-            avisElement.innerHTML += `<br>${avis[i].utilisateur} :<br> ${avis[i].commentaire} <br> Nombre d'étoiles : ${avis[i].nbEtoiles ??("Aucune") }<br>`
-        }
+        //j'affiche les avis propre au id correspondant grace a la fonction afficherAvis
+        afficherAvis(pieceElement,avis)
 
-        //je rajoute le p au parent pré-recupere
-        pieceElement.appendChild(avisElement)
       });
     }
 }
 
+/** refactorisation du code de generation du dom des avis
+ * 
+ *  pieceElement : c'est l'element du dom auquel rattacher l'element p
+ *  avis : c'est la liste des avis a ajouter
+ */
+export function afficherAvis(pieceElement, avis){
+    const avisElement = document.createElement("p")
+    for(let i = 0; i < avis.length; i++){
+        avisElement.innerHTML += `<br>${avis[i].utilisateur} :<br> ${avis[i].commentaire} <br> Nombre d'étoiles : ${avis[i].nbEtoiles ??("Aucune") }<br>`
+    }
+    //je rajoute le p au parent pré-recupere
+    pieceElement.appendChild(avisElement)
+}
 
 //la soumission d'un formulaire est validee lorsque l'on appuie sur enter dans un champ, ou sur le bouton d'envoi
 export function ajoutListenerEnvoyerAvis(){

@@ -1,10 +1,25 @@
 //rendre disponible, dans ce fichier la fonction permettant de lancer la requete
-import { ajoutListenersAvis, ajoutListenerEnvoyerAvis } from "./avis.js";
+import { ajoutListenersAvis, ajoutListenerEnvoyerAvis, afficherAvis } from "./avis.js";
 
-// Récupération des pièces depuis le fichier JSON
+//Recuperation eventuelle des pieces depuis le localStorage
+let pieces = window.localStorage.getItem("pieces")
 
-const reponse = await fetch("http://localhost:8081/pieces");
-const pieces = await reponse.json();
+if(pieces === null){
+    //Recuperation des pieces depuis l'API
+    const reponse = await fetch("http://localhost:8081/pieces")
+    pieces = await reponse.json()
+    //transformation des pieces en json
+    const valeurPieces = JSON.stringify(pieces)
+    //pour finir, stocker les infos dans le localStorage
+    window.localStorage.setItem("pieces", valeurPieces)
+}else{
+    pieces = JSON.parse(pieces) //JSON.parse convertit la chaine JSON en objet Javascript
+}
+
+/**
+ * Une autre facon de recuperer les pieces deouis le fichier JSON
+ * const pieces = await fetch("http://localhost:8081/pieces").then(pieces => pieces.json())
+ */
 
 //j'appelle la fonction pour ajouter le listener au formulaire
 ajoutListenerEnvoyerAvis()
@@ -21,7 +36,12 @@ function genererPieces(pieces){
     
         //je cree d'abord une balise article  dediee a une piece 
         const pieceElement = document.createElement("article")
-    
+        /** fonctionnement de l'interface dataset
+         * dataset : une propriété des éléments DOM qui permet de lire et écrire les attributs de données personnalisés (data-*) directement en JavaScript.
+         * id : En ajoutant .id après dataset, on cree ou modifie un attribut de données appelé data-id.
+        */
+        pieceElement.dataset.id = pieces[i].id
+
         //je cree l'img
         const imageElement = document.createElement("img")
         //j'accede a l'element img pour configurer la source de l'image
@@ -41,7 +61,7 @@ function genererPieces(pieces){
         
         //je cree le p pour la description et je donne sa config
         const descriptionElement = document.createElement("p")
-        descriptionElement.innerText = article.description ?? ("Pas de description pour le moment") 
+        descriptionElement.innerText = article.description ?? "Pas de description pour le moment"
     
         //je cree le p pour la disponibilite et je donne sa config
         const disponibiliteElement = document.createElement("p")
@@ -49,7 +69,7 @@ function genererPieces(pieces){
     
         //creation du bouton afficher les avis
         const avisBouton = document.createElement("button")
-        avisBouton.dataset.id = article.id
+        avisBouton.dataset.id = article.id //assigne la valeur de article.id à l'attribut data-id du bouton avisBouton; cela permettra entre autres de recuperer l'lement parent auquel ajouter les avis plus tard
         avisBouton.textContent = "Afficher les avis."
 
         //rattachement de la balise article a la section fiche
@@ -64,13 +84,26 @@ function genererPieces(pieces){
         pieceElement.appendChild(disponibiliteElement)
         pieceElement.appendChild(avisBouton)
     }
-
     // Ajout de la fonction ajoutListenersAvis a la suite de la generation de toutes les fiches produits ou articles
     ajoutListenersAvis();
 }
 
 //affichage par defaut
 genererPieces(pieces)
+
+//pour chaque piece on recuperera l'eventuelle valeur stockee dans le localStorage
+for(let i = 0; i < pieces.length; i++){
+    const id = pieces[i].id //il faut recuperer l'id de la piece
+    const avisJSON = window.localStorage.getItem(`avis-piece-${id}`) //cet element sort tout frais du localStorage, donc sous format JSON a convertir
+    const avis = JSON.parse(avisJSON)
+
+    //si la valeu de avis est presente, recuperer l'element parent grace a data-id qu'on a ajoute precedemment et afficher les avis
+    if(avis !== null){
+        const pieceElement = document.querySelector(`article[data-id="${id}"]`)
+        afficherAvis(pieceElement,avis)
+    }
+}
+
 
 /**
  * je procede a la gestion des boutons
@@ -111,7 +144,7 @@ boutonFiltrer.addEventListener("click", function () {
    document.querySelector(".fiches").innerHTML = ""
     genererPieces(piecesFiltrees)
 
- }) 
+}) 
 
 
 //je recupere le bouton pour filtrer par description et je l'eecoute
@@ -205,4 +238,15 @@ prixMaximum.addEventListener("input", () => { //c'est la valeur de l'entree quon
     document.querySelector(".fiches").innerHTML = ""
     //on gere l'affichage
     genererPieces(piecesFiltrees)
+})
+
+/**
+ * le listener qui permet de mettre a jour les pieces de la page web
+ * lorsqu'on aurait fait des modifications sur les fichiers json en ligne, il faudra que le localStorage s'en enquiert
+ * il faut donc supprimer son contenu et le mettre à jour en reprenant les valeurs contenu sur le service en ligne
+**/
+const boutonMettreAJour = document.querySelector(".btn-maj")
+boutonMettreAJour.addEventListener("click", function() {
+    window.localStorage.removeItem("pieces")
+    console.log("toto")
 })
